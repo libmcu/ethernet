@@ -6,7 +6,12 @@
 
 #include "eth/eth.h"
 #include <string.h>
+#if defined(__NEWLIB__)
+#include <sys/endian.h>
+#define htons		htobe16
+#else
 #include <arpa/inet.h>
+#endif
 
 void eth_set_dst(struct eth *eth, uint8_t dst[6])
 {
