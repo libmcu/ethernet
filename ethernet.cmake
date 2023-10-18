@@ -1,0 +1,8 @@
+# SPDX-License-Identifier: MIT
+
+list(APPEND ETHERNET_SRCS
+	${CMAKE_CURRENT_LIST_DIR}/src/qca.c
+	${CMAKE_CURRENT_LIST_DIR}/src/mme.c
+	${CMAKE_CURRENT_LIST_DIR}/src/eth.c
+)
+list(APPEND ETHERNET_INCS ${CMAKE_CURRENT_LIST_DIR}/include)
