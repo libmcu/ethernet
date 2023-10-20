@@ -28,7 +28,7 @@ void eth_set_etype(struct eth *eth, eth_etype_t etype)
 	eth->etype = htons(etype);
 }
 
-uint16_t eth_get_etype(struct eth *eth)
+uint16_t eth_get_etype(const struct eth *eth)
 {
 	return htons(eth->etype);
 }
