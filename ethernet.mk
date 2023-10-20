@@ -5,11 +5,8 @@ ifneq ($(ETHERNET_ROOT),)
 endif
 
 ETHERNET_SRCS := \
-$(eth-basedir)src/common.c \
-$(eth-basedir)src/parser.c \
-$(eth-basedir)src/decoder.c \
-$(eth-basedir)src/encoder.c \
-$(eth-basedir)src/helper.c \
-$(eth-basedir)src/ieee754.c \
+$(eth-basedir)src/qca.c \
+$(eth-basedir)src/mme.c \
+$(eth-basedir)src/eth.c \
 
 ETHERNET_INCS := $(eth-basedir)include
