@@ -38,11 +38,13 @@ static void set_oui(struct qca_mme *qca)
 
 static size_t pack_nothing(struct qca_mme *qca)
 {
+	(void)qca;
 	return 0;
 }
 
 static size_t pack_version(struct qca_mme *qca)
 {
+	(void)qca;
 	return 24;
 }
 
@@ -116,6 +118,7 @@ static size_t (*pack[QCA_MMTYPE_MAX])(struct qca_mme *qca) = {
 
 size_t qca_pack_query(qca_mmtype_t type, struct eth *buf, size_t bufsize)
 {
+	(void)bufsize;
 	struct eth *eth = buf;
 	struct eth_mme *mme = (struct eth_mme *)eth->payload;
 	struct qca_mme *qca = (struct qca_mme *)mme->body;
@@ -167,13 +170,14 @@ uint16_t qca_mmtype_to_value(qca_mmtype_t type)
 		offset += 0x48;
 	}
 
-	offset += (uint16_t)type * 4;
+	offset += (uint16_t)(type * 4);
 
 	return base + offset;
 }
 
 size_t qca_pack_pib_read(struct eth *buf, size_t bufsize, uint32_t offset)
 {
+	(void)bufsize;
 	struct eth *eth = buf;
 	struct eth_mme *mme = (struct eth_mme *)eth->payload;
 	struct qca_mme *qca = (struct qca_mme *)mme->body;
