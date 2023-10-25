@@ -32,13 +32,15 @@ static void set_header(struct eth *eth, uint16_t mmtype)
 
 static size_t pack_nothing(struct hp_mme *mme, const struct hp_mme_entry *entry)
 {
+	(void)mme;
+	(void)entry;
 	return 0;
 }
 
 static size_t pack_setkey_req(struct hp_mme *mme, const struct hp_mme_entry *entry)
 {
-	memcpy(mme->body, entry, sizeof(*entry));
-	return sizeof(*entry);
+	memcpy(mme->body, entry, sizeof(entry->msg.setkey));
+	return sizeof(entry->msg.setkey);
 }
 
 static size_t (*pack_req[])(struct hp_mme *mme, const struct hp_mme_entry *entry) = {
@@ -60,7 +62,10 @@ static size_t (*pack_req[])(struct hp_mme *mme, const struct hp_mme_entry *entry
 	pack_nothing,		/*HP_MMTYPE_SLAC_USER_DATA*/
 	pack_nothing,		/*HP_MMTYPE_ATTEN_PROFILE*/
 };
+#pragma GCC diagnostic push
+#pragma GCC diagnostic ignored "-Wpedantic"
 _Static_assert(sizeof(pack_req) / sizeof(pack_req[0]) == HP_MMTYPE_MAX, "");
+#pragma GCC diagnostic pop
 
 size_t hp_pack_request(hp_mmtype_t type, const struct hp_mme_entry *entry,
 		struct eth *buf, size_t bufsize)

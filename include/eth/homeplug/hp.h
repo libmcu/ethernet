@@ -13,6 +13,7 @@ extern "C" {
 
 #include "eth/mme.h"
 #include <stdint.h>
+#include <stddef.h>
 
 #define HP_MMTYPE_MSB_BIT		13
 
@@ -85,7 +86,7 @@ struct hp_mme_setkey_cnf {
 struct hp_mme_entry {
 	union {
 		struct hp_mme_setkey_req setkey;
-	};
+	} msg;
 };
 
 uint16_t hp_mmtype_to_code(hp_mmtype_t type);

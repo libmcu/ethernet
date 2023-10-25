@@ -11,7 +11,7 @@
 extern "C" {
 #endif
 
-#include "eth/homeplug/homeplug.h"
+#include "eth/homeplug/hp.h"
 #include <stdint.h>
 #include <stddef.h>
 
@@ -96,7 +96,12 @@ struct qca_mme_mo_cnf {
 	uint8_t data[];
 } __attribute__((packed));
 
-size_t qca_pack_query(qca_mmtype_t type, struct eth *buf, size_t bufsize);
+struct qca_mme_entry {
+	int reserved;
+};
+
+size_t qca_pack_query(qca_mmtype_t type, const struct qca_mme_entry *mme,
+		struct eth *buf, size_t bufsize);
 uint16_t qca_mmtype_to_value(qca_mmtype_t type);
 
 size_t qca_pack_pib_read(struct eth *buf, size_t bufsize, uint32_t offset);
