@@ -22,7 +22,7 @@ typedef enum {
 	HP_MMTYPE_CNF, /*< Management message confirm */
 	HP_MMTYPE_IND, /*< Management message indication */
 	HP_MMTYPE_RSP, /*< Management message response */
-} hp_mmtype_lsb_t;
+} hp_mmtype_variant_t;
 
 typedef enum {
 	HP_MMTYPE_STA_CCO, /*< messages exchanged between STA and CCo */
@@ -128,6 +128,7 @@ size_t hp_pack_confirm(hp_mmtype_t type, const struct hp_mme_cnf *cnf,
 		struct eth *buf, size_t bufsize);
 
 hp_mmtype_t hp_mmtype(const struct eth *eth_frame);
+hp_mmtype_variant_t hp_mmtype_variant(const struct eth *eth_frame);
 
 #if defined(__cplusplus)
 }

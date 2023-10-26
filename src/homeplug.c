@@ -148,6 +148,12 @@ hp_mmtype_t hp_mmtype(const struct eth *eth_frame)
 	return hp_code_to_mmtype(mme->mmtype);
 }
 
+hp_mmtype_variant_t hp_mmtype_variant(const struct eth *eth_frame)
+{
+	const struct eth_mme *mme = (const struct eth_mme *)eth_frame->payload;
+	return (hp_mmtype_variant_t)(mme->mmtype & 0x3);
+}
+
 uint16_t hp_mmtype_to_code(hp_mmtype_t type)
 {
 	uint16_t base = HP_MMTYPE_STA_STA << HP_MMTYPE_MSB_BIT;
