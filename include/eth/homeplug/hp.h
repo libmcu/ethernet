@@ -83,15 +83,44 @@ struct hp_mme_setkey_cnf {
 	uint8_t cco;
 } __attribute__((packed));
 
-struct hp_mme_entry {
+struct hp_mme_slac_parm_req {
+	uint8_t app_type;
+	uint8_t sec_type;
+	uint8_t run_id[8];
+	uint8_t ciphersuite_size;
+	uint8_t ciphersuite[];
+} __attribute__((packed));
+
+struct hp_mme_slac_parm_cnf {
+	uint8_t target_mac[6];
+	uint8_t nr_sounds;
+	uint8_t timeout_ms_hundredth;
+	uint8_t forwarding_type;
+	uint8_t forwarding_mac[6];
+	uint8_t app_type;
+	uint8_t sec_type;
+	uint8_t run_id[8];
+	uint16_t ciphersuite;
+} __attribute__((packed));
+
+struct hp_mme_req {
 	union {
 		struct hp_mme_setkey_req setkey;
+		struct hp_mme_slac_parm_req slac_parm;
+	} msg;
+};
+
+struct hp_mme_cnf {
+	union {
+		struct hp_mme_slac_parm_cnf slac_parm;
 	} msg;
 };
 
 uint16_t hp_mmtype_to_code(hp_mmtype_t type);
 hp_mmtype_t hp_code_to_mmtype(uint16_t code);
-size_t hp_pack_request(hp_mmtype_t type, const struct hp_mme_entry *entry,
+size_t hp_pack_request(hp_mmtype_t type, const struct hp_mme_req *req,
+		struct eth *buf, size_t bufsize);
+size_t hp_pack_confirm(hp_mmtype_t type, const struct hp_mme_cnf *cnf,
 		struct eth *buf, size_t bufsize);
 
 #if defined(__cplusplus)

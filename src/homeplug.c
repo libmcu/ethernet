@@ -30,20 +30,39 @@ static void set_header(struct eth *eth, uint16_t mmtype)
 	set_fmi(hp);
 }
 
-static size_t pack_nothing(struct hp_mme *mme, const struct hp_mme_entry *entry)
+static size_t pack_nothing(struct hp_mme *mme, const struct hp_mme_req *req)
 {
 	(void)mme;
-	(void)entry;
+	(void)req;
 	return 0;
 }
 
-static size_t pack_setkey_req(struct hp_mme *mme, const struct hp_mme_entry *entry)
+static size_t pack_nothing_cnf(struct hp_mme *mme, const struct hp_mme_cnf *cnf)
 {
-	memcpy(mme->body, entry, sizeof(entry->msg.setkey));
-	return sizeof(entry->msg.setkey);
+	(void)mme;
+	(void)cnf;
+	return 0;
 }
 
-static size_t (*pack_req[])(struct hp_mme *mme, const struct hp_mme_entry *entry) = {
+static size_t pack_setkey_req(struct hp_mme *mme, const struct hp_mme_req *req)
+{
+	memcpy(mme->body, req, sizeof(req->msg.setkey));
+	return sizeof(req->msg.setkey);
+}
+
+static size_t pack_slac_parm_req(struct hp_mme *mme, const struct hp_mme_req *req)
+{
+	memcpy(mme->body, req, sizeof(req->msg.slac_parm));
+	return sizeof(req->msg.slac_parm);
+}
+
+static size_t pack_slac_parm_cnf(struct hp_mme *mme, const struct hp_mme_cnf *cnf)
+{
+	memcpy(mme->body, cnf, sizeof(cnf->msg.slac_parm));
+	return sizeof(cnf->msg.slac_parm);
+}
+
+static size_t (*pack_req[])(struct hp_mme *mme, const struct hp_mme_req *req) = {
 	pack_nothing,		/*HP_MMTYPE_DISCOVER_LIST*/
 	pack_nothing,		/*HP_MMTYPE_ENCRYPTED*/
 	pack_setkey_req,	/*HP_MMTYPE_SET_KEY*/
@@ -52,7 +71,7 @@ static size_t (*pack_req[])(struct hp_mme *mme, const struct hp_mme_entry *entry
 	pack_nothing,		/*HP_MMTYPE_NW_INFO*/
 	pack_nothing,		/*HP_MMTYPE_HFID*/
 	pack_nothing,		/*HP_MMTYPE_NW_STATS*/
-	pack_nothing,		/*HP_MMTYPE_SLAC_PARM*/
+	pack_slac_parm_req,	/*HP_MMTYPE_SLAC_PARM*/
 	pack_nothing,		/*HP_MMTYPE_START_ATTEN_CHAR*/
 	pack_nothing,		/*HP_MMTYPE_ATTEN_CHAR*/
 	pack_nothing,		/*HP_MMTYPE_PKCS_CERT*/
@@ -62,21 +81,59 @@ static size_t (*pack_req[])(struct hp_mme *mme, const struct hp_mme_entry *entry
 	pack_nothing,		/*HP_MMTYPE_SLAC_USER_DATA*/
 	pack_nothing,		/*HP_MMTYPE_ATTEN_PROFILE*/
 };
+static size_t (*pack_cnf[])(struct hp_mme *mme, const struct hp_mme_cnf *cnf) = {
+	pack_nothing_cnf,		/*HP_MMTYPE_DISCOVER_LIST*/
+	pack_nothing_cnf,		/*HP_MMTYPE_ENCRYPTED*/
+	pack_nothing_cnf,		/*HP_MMTYPE_SET_KEY*/
+	pack_nothing_cnf,		/*HP_MMTYPE_GET_KEY*/
+	pack_nothing_cnf,		/*HP_MMTYPE_BRG_INFO*/
+	pack_nothing_cnf,		/*HP_MMTYPE_NW_INFO*/
+	pack_nothing_cnf,		/*HP_MMTYPE_HFID*/
+	pack_nothing_cnf,		/*HP_MMTYPE_NW_STATS*/
+	pack_slac_parm_cnf,	/*HP_MMTYPE_SLAC_PARM*/
+	pack_nothing_cnf,		/*HP_MMTYPE_START_ATTEN_CHAR*/
+	pack_nothing_cnf,		/*HP_MMTYPE_ATTEN_CHAR*/
+	pack_nothing_cnf,		/*HP_MMTYPE_PKCS_CERT*/
+	pack_nothing_cnf,		/*HP_MMTYPE_MNBC_SOUND*/
+	pack_nothing_cnf,		/*HP_MMTYPE_VALIDATE*/
+	pack_nothing_cnf,		/*HP_MMTYPE_SLAC_MATCH*/
+	pack_nothing_cnf,		/*HP_MMTYPE_SLAC_USER_DATA*/
+	pack_nothing_cnf,		/*HP_MMTYPE_ATTEN_PROFILE*/
+};
 #pragma GCC diagnostic push
 #pragma GCC diagnostic ignored "-Wpedantic"
 _Static_assert(sizeof(pack_req) / sizeof(pack_req[0]) == HP_MMTYPE_MAX, "");
+_Static_assert(sizeof(pack_cnf) / sizeof(pack_cnf[0]) == HP_MMTYPE_MAX, "");
 #pragma GCC diagnostic pop
 
-size_t hp_pack_request(hp_mmtype_t type, const struct hp_mme_entry *entry,
+size_t hp_pack_request(hp_mmtype_t type, const struct hp_mme_req *req,
 		struct eth *buf, size_t bufsize)
 {
 	struct eth *eth = buf;
 	struct eth_mme *mme = (struct eth_mme *)eth->payload;
 	struct hp_mme *hp = (struct hp_mme *)mme->body;
 
-	set_header(eth, hp_mmtype_to_code(type));
+	set_header(eth, hp_mmtype_to_code(type) | HP_MMTYPE_REQ);
 
-	size_t len = pack_req[type](hp, entry);
+	size_t len = pack_req[type](hp, req);
+
+	if ((len + sizeof(*eth) + sizeof(*mme)) > bufsize) {
+		return 0;
+	}
+
+	return len;
+}
+
+size_t hp_pack_confirm(hp_mmtype_t type, const struct hp_mme_cnf *cnf,
+		struct eth *buf, size_t bufsize)
+{
+	struct eth *eth = buf;
+	struct eth_mme *mme = (struct eth_mme *)eth->payload;
+	struct hp_mme *hp = (struct hp_mme *)mme->body;
+
+	set_header(eth, hp_mmtype_to_code(type) | HP_MMTYPE_CNF);
+
+	size_t len = pack_cnf[type](hp, cnf);
 
 	if ((len + sizeof(*eth) + sizeof(*mme)) > bufsize) {
 		return 0;
