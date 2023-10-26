@@ -21,7 +21,7 @@ TEST(QCA, VERSION_REQ) {
 		0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00
 	};
 	uint8_t buf[64] = { 0, };
-	size_t len = qca_pack_query(QCA_MMTYPE_SW_VER, (struct eth *)buf, sizeof(buf));
+	size_t len = qca_pack_query(QCA_MMTYPE_SW_VER, 0, (struct eth *)buf, sizeof(buf));
 	LONGS_EQUAL(24, len);
 
 	struct eth *eth = (struct eth *)buf;

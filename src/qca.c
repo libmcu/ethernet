@@ -36,18 +36,6 @@ static void set_oui(struct qca_mme *qca)
 	qca->oui[2] = 0x52;
 }
 
-static size_t pack_nothing(struct qca_mme *qca)
-{
-	(void)qca;
-	return 0;
-}
-
-static size_t pack_version(struct qca_mme *qca)
-{
-	(void)qca;
-	return 24;
-}
-
 static void set_header(struct eth *eth, qca_mmtype_t type)
 {
 	struct eth_mme *mme = (struct eth_mme *)eth->payload;
@@ -62,7 +50,21 @@ static void set_header(struct eth *eth, qca_mmtype_t type)
 	set_oui(qca);
 }
 
-static size_t (*pack[QCA_MMTYPE_MAX])(struct qca_mme *qca) = {
+static size_t pack_nothing(struct qca_mme *qca, const struct qca_mme_entry *entry)
+{
+	(void)qca;
+	(void)entry;
+	return 0;
+}
+
+static size_t pack_version(struct qca_mme *qca, const struct qca_mme_entry *entry)
+{
+	(void)qca;
+	(void)entry;
+	return 24;
+}
+
+static size_t (*pack[QCA_MMTYPE_MAX])(struct qca_mme *qca, const struct qca_mme_entry *mme) = {
 	pack_version,		/*QCA_MMTYPE_SW_VER*/
 	pack_nothing,		/*QCA_MMTYPE_WR_MEM*/
 	pack_nothing,		/*QCA_MMTYPE_RD_MEM*/
@@ -116,7 +118,8 @@ static size_t (*pack[QCA_MMTYPE_MAX])(struct qca_mme *qca) = {
 	pack_nothing,		/*QCA_MMTYPE_ATTEN*/
 };
 
-size_t qca_pack_query(qca_mmtype_t type, struct eth *buf, size_t bufsize)
+size_t qca_pack_query(qca_mmtype_t type, const struct qca_mme_entry *entry,
+		struct eth *buf, size_t bufsize)
 {
 	(void)bufsize;
 	struct eth *eth = buf;
@@ -125,7 +128,7 @@ size_t qca_pack_query(qca_mmtype_t type, struct eth *buf, size_t bufsize)
 
 	set_header(eth, type);
 
-	return pack[type](qca);
+	return pack[type](qca, entry);
 }
 
 uint16_t qca_mmtype_to_value(qca_mmtype_t type)

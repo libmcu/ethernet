@@ -6,6 +6,7 @@ endif
 
 ETHERNET_SRCS := \
 $(eth-basedir)src/qca.c \
+$(eth-basedir)src/homeplug.c \
 $(eth-basedir)src/mme.c \
 $(eth-basedir)src/eth.c \
 
