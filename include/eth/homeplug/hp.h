@@ -88,7 +88,10 @@ struct hp_mme_slac_parm_req {
 	uint8_t sec_type;
 	uint8_t run_id[8];
 	uint8_t ciphersuite_size;
-	uint8_t ciphersuite[];
+#pragma GCC diagnostic push
+#pragma GCC diagnostic ignored "-Wpedantic"
+	uint8_t ciphersuite[0];
+#pragma GCC diagnostic pop
 } __attribute__((packed));
 
 struct hp_mme_slac_parm_cnf {
@@ -118,10 +121,13 @@ struct hp_mme_cnf {
 
 uint16_t hp_mmtype_to_code(hp_mmtype_t type);
 hp_mmtype_t hp_code_to_mmtype(uint16_t code);
+
 size_t hp_pack_request(hp_mmtype_t type, const struct hp_mme_req *req,
 		struct eth *buf, size_t bufsize);
 size_t hp_pack_confirm(hp_mmtype_t type, const struct hp_mme_cnf *cnf,
 		struct eth *buf, size_t bufsize);
+
+hp_mmtype_t hp_mmtype(const struct eth *eth_frame);
 
 #if defined(__cplusplus)
 }

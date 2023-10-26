@@ -142,6 +142,12 @@ size_t hp_pack_confirm(hp_mmtype_t type, const struct hp_mme_cnf *cnf,
 	return len;
 }
 
+hp_mmtype_t hp_mmtype(const struct eth *eth_frame)
+{
+	const struct eth_mme *mme = (const struct eth_mme *)eth_frame->payload;
+	return hp_code_to_mmtype(mme->mmtype);
+}
+
 uint16_t hp_mmtype_to_code(hp_mmtype_t type)
 {
 	uint16_t base = HP_MMTYPE_STA_STA << HP_MMTYPE_MSB_BIT;

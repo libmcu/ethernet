@@ -15,7 +15,9 @@ extern "C" {
 
 typedef uint16_t eth_etype_t;
 enum {
-	ETH_ETYPE_HOMEPLUG = 0x88E1,
+	ETH_ETYPE_IPv4		= 0x0800,
+	ETH_ETYPE_IPv6		= 0x86DD,
+	ETH_ETYPE_HOMEPLUG	= 0x88E1,
 };
 
 struct eth {
