@@ -13,12 +13,12 @@
 #include <arpa/inet.h>
 #endif
 
-void eth_set_dst(struct eth *eth, uint8_t dst[6])
+void eth_set_dst(struct eth *eth, const uint8_t dst[6])
 {
 	memcpy(eth->dst, dst, sizeof(eth->dst));
 }
 
-void eth_set_src(struct eth *eth, uint8_t src[6])
+void eth_set_src(struct eth *eth, const uint8_t src[6])
 {
 	memcpy(eth->src, src, sizeof(eth->src));
 }

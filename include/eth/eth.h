@@ -27,8 +27,8 @@ struct eth {
 	uint8_t payload[];
 } __attribute__((packed));
 
-void eth_set_dst(struct eth *eth, uint8_t dst[6]);
-void eth_set_src(struct eth *eth, uint8_t src[6]);
+void eth_set_dst(struct eth *eth, const uint8_t dst[6]);
+void eth_set_src(struct eth *eth, const uint8_t src[6]);
 void eth_set_etype(struct eth *eth, uint16_t etype);
 uint16_t eth_get_etype(const struct eth *eth);
 
