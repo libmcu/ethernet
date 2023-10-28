@@ -44,6 +44,13 @@ static size_t pack_nothing_cnf(struct hp_mme *mme, const struct hp_mme_cnf *cnf)
 	return 0;
 }
 
+static size_t pack_nothing_ind(struct hp_mme *mme, const struct hp_mme_ind *ind)
+{
+	(void)mme;
+	(void)ind;
+	return 0;
+}
+
 static size_t pack_setkey_req(struct hp_mme *mme, const struct hp_mme_req *req)
 {
 	memcpy(mme->body, req, sizeof(req->msg.setkey));
@@ -60,6 +67,12 @@ static size_t pack_slac_parm_cnf(struct hp_mme *mme, const struct hp_mme_cnf *cn
 {
 	memcpy(mme->body, cnf, sizeof(cnf->msg.slac_parm));
 	return sizeof(cnf->msg.slac_parm);
+}
+
+static size_t pack_atten_char_ind(struct hp_mme *mme, const struct hp_mme_ind *ind)
+{
+	memcpy(mme->body, ind, sizeof(ind->msg.atten_char));
+	return sizeof(ind->msg.atten_char);
 }
 
 static size_t (*pack_req[])(struct hp_mme *mme, const struct hp_mme_req *req) = {
@@ -82,28 +95,48 @@ static size_t (*pack_req[])(struct hp_mme *mme, const struct hp_mme_req *req) = 
 	pack_nothing,		/*HP_MMTYPE_ATTEN_PROFILE*/
 };
 static size_t (*pack_cnf[])(struct hp_mme *mme, const struct hp_mme_cnf *cnf) = {
-	pack_nothing_cnf,		/*HP_MMTYPE_DISCOVER_LIST*/
-	pack_nothing_cnf,		/*HP_MMTYPE_ENCRYPTED*/
-	pack_nothing_cnf,		/*HP_MMTYPE_SET_KEY*/
-	pack_nothing_cnf,		/*HP_MMTYPE_GET_KEY*/
-	pack_nothing_cnf,		/*HP_MMTYPE_BRG_INFO*/
-	pack_nothing_cnf,		/*HP_MMTYPE_NW_INFO*/
-	pack_nothing_cnf,		/*HP_MMTYPE_HFID*/
-	pack_nothing_cnf,		/*HP_MMTYPE_NW_STATS*/
+	pack_nothing_cnf,	/*HP_MMTYPE_DISCOVER_LIST*/
+	pack_nothing_cnf,	/*HP_MMTYPE_ENCRYPTED*/
+	pack_nothing_cnf,	/*HP_MMTYPE_SET_KEY*/
+	pack_nothing_cnf,	/*HP_MMTYPE_GET_KEY*/
+	pack_nothing_cnf,	/*HP_MMTYPE_BRG_INFO*/
+	pack_nothing_cnf,	/*HP_MMTYPE_NW_INFO*/
+	pack_nothing_cnf,	/*HP_MMTYPE_HFID*/
+	pack_nothing_cnf,	/*HP_MMTYPE_NW_STATS*/
 	pack_slac_parm_cnf,	/*HP_MMTYPE_SLAC_PARM*/
-	pack_nothing_cnf,		/*HP_MMTYPE_START_ATTEN_CHAR*/
-	pack_nothing_cnf,		/*HP_MMTYPE_ATTEN_CHAR*/
-	pack_nothing_cnf,		/*HP_MMTYPE_PKCS_CERT*/
-	pack_nothing_cnf,		/*HP_MMTYPE_MNBC_SOUND*/
-	pack_nothing_cnf,		/*HP_MMTYPE_VALIDATE*/
-	pack_nothing_cnf,		/*HP_MMTYPE_SLAC_MATCH*/
-	pack_nothing_cnf,		/*HP_MMTYPE_SLAC_USER_DATA*/
-	pack_nothing_cnf,		/*HP_MMTYPE_ATTEN_PROFILE*/
+	pack_nothing_cnf,	/*HP_MMTYPE_START_ATTEN_CHAR*/
+	pack_nothing_cnf,	/*HP_MMTYPE_ATTEN_CHAR*/
+	pack_nothing_cnf,	/*HP_MMTYPE_PKCS_CERT*/
+	pack_nothing_cnf,	/*HP_MMTYPE_MNBC_SOUND*/
+	pack_nothing_cnf,	/*HP_MMTYPE_VALIDATE*/
+	pack_nothing_cnf,	/*HP_MMTYPE_SLAC_MATCH*/
+	pack_nothing_cnf,	/*HP_MMTYPE_SLAC_USER_DATA*/
+	pack_nothing_cnf,	/*HP_MMTYPE_ATTEN_PROFILE*/
+};
+static size_t (*pack_ind[])(struct hp_mme *mme, const struct hp_mme_ind *ind) = {
+	pack_nothing_ind,	/*HP_MMTYPE_DISCOVER_LIST*/
+	pack_nothing_ind,	/*HP_MMTYPE_ENCRYPTED*/
+	pack_nothing_ind,	/*HP_MMTYPE_SET_KEY*/
+	pack_nothing_ind,	/*HP_MMTYPE_GET_KEY*/
+	pack_nothing_ind,	/*HP_MMTYPE_BRG_INFO*/
+	pack_nothing_ind,	/*HP_MMTYPE_NW_INFO*/
+	pack_nothing_ind,	/*HP_MMTYPE_HFID*/
+	pack_nothing_ind,	/*HP_MMTYPE_NW_STATS*/
+	pack_nothing_ind,	/*HP_MMTYPE_SLAC_PARM*/
+	pack_nothing_ind,	/*HP_MMTYPE_START_ATTEN_CHAR*/
+	pack_atten_char_ind,	/*HP_MMTYPE_ATTEN_CHAR*/
+	pack_nothing_ind,	/*HP_MMTYPE_PKCS_CERT*/
+	pack_nothing_ind,	/*HP_MMTYPE_MNBC_SOUND*/
+	pack_nothing_ind,	/*HP_MMTYPE_VALIDATE*/
+	pack_nothing_ind,	/*HP_MMTYPE_SLAC_MATCH*/
+	pack_nothing_ind,	/*HP_MMTYPE_SLAC_USER_DATA*/
+	pack_nothing_ind,	/*HP_MMTYPE_ATTEN_PROFILE*/
 };
 #pragma GCC diagnostic push
 #pragma GCC diagnostic ignored "-Wpedantic"
 _Static_assert(sizeof(pack_req) / sizeof(pack_req[0]) == HP_MMTYPE_MAX, "");
 _Static_assert(sizeof(pack_cnf) / sizeof(pack_cnf[0]) == HP_MMTYPE_MAX, "");
+_Static_assert(sizeof(pack_ind) / sizeof(pack_ind[0]) == HP_MMTYPE_MAX, "");
 #pragma GCC diagnostic pop
 
 size_t hp_pack_request(hp_mmtype_t type, const struct hp_mme_req *req,
@@ -134,6 +167,24 @@ size_t hp_pack_confirm(hp_mmtype_t type, const struct hp_mme_cnf *cnf,
 	set_header(eth, hp_mmtype_to_code(type) | HP_MMTYPE_CNF);
 
 	size_t len = pack_cnf[type](hp, cnf);
+
+	if ((len + sizeof(*eth) + sizeof(*mme)) > bufsize) {
+		return 0;
+	}
+
+	return len;
+}
+
+size_t hp_pack_indication(hp_mmtype_t type, const struct hp_mme_ind *ind,
+		struct eth *buf, size_t bufsize)
+{
+	struct eth *eth = buf;
+	struct eth_mme *mme = (struct eth_mme *)eth->payload;
+	struct hp_mme *hp = (struct hp_mme *)mme->body;
+
+	set_header(eth, hp_mmtype_to_code(type) | HP_MMTYPE_IND);
+
+	size_t len = pack_ind[type](hp, ind);
 
 	if ((len + sizeof(*eth) + sizeof(*mme)) > bufsize) {
 		return 0;

@@ -141,10 +141,20 @@ struct hp_mme_atten_profile_ind {
 	uint8_t aag[];
 } __attribute__((packed));
 
+struct hp_mme_atten_char_ind_body {
+	uint8_t mac_src[6];
+	uint8_t run_id[8];
+	uint8_t id_src[17];
+	uint8_t id_rsp[17];
+	uint8_t nr_sounds;
+	uint8_t nr_groups;
+	uint8_t aag[58];
+} __attribute__((packed));
+
 struct hp_mme_atten_char_ind {
 	uint8_t app_type;
 	uint8_t sec_type;
-	uint8_t atten[];
+	struct hp_mme_atten_char_ind_body atten;
 } __attribute__((packed));
 
 struct hp_mme_atten_char_rsp_body {
@@ -226,12 +236,20 @@ struct hp_mme_cnf {
 	} msg;
 };
 
+struct hp_mme_ind {
+	union {
+		struct hp_mme_atten_char_ind atten_char;
+	} msg;
+};
+
 uint16_t hp_mmtype_to_code(hp_mmtype_t type);
 hp_mmtype_t hp_code_to_mmtype(uint16_t code);
 
 size_t hp_pack_request(hp_mmtype_t type, const struct hp_mme_req *req,
 		struct eth *buf, size_t bufsize);
 size_t hp_pack_confirm(hp_mmtype_t type, const struct hp_mme_cnf *cnf,
+		struct eth *buf, size_t bufsize);
+size_t hp_pack_indication(hp_mmtype_t type, const struct hp_mme_ind *ind,
 		struct eth *buf, size_t bufsize);
 
 hp_mmtype_t hp_mmtype(const struct eth *eth_frame);
