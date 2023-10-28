@@ -106,6 +106,113 @@ struct hp_mme_slac_parm_cnf {
 	uint16_t ciphersuite;
 } __attribute__((packed));
 
+struct hp_mme_start_atten_char_ind_body {
+	uint8_t nr_sounds;
+	uint8_t timeout_ms_hundredth;
+	uint8_t resp_type;
+	uint8_t forwarding_sta[6];
+	uint8_t run_id[8];
+} __attribute__((packed));
+
+struct hp_mme_start_atten_char_ind {
+	uint8_t app_type;
+	uint8_t sec_type;
+	struct hp_mme_start_atten_char_ind_body atten;
+} __attribute__((packed));
+
+struct hp_mme_mnbc_sound_ind_body {
+	uint8_t sender_id[17];
+	uint8_t count;
+	uint8_t run_id[8];
+	uint8_t reserved[8];
+	uint8_t rnd[16];
+} __attribute__((packed));
+
+struct hp_mme_mnbc_sound_ind {
+	uint8_t app_type;
+	uint8_t sec_type;
+	struct hp_mme_mnbc_sound_ind_body msound;
+} __attribute__((packed));
+
+struct hp_mme_atten_profile_ind {
+	uint8_t pev_mac[6];
+	uint8_t nr_groups;
+	uint8_t reserved;
+	uint8_t aag[];
+} __attribute__((packed));
+
+struct hp_mme_atten_char_ind {
+	uint8_t app_type;
+	uint8_t sec_type;
+	uint8_t atten[];
+} __attribute__((packed));
+
+struct hp_mme_atten_char_rsp_body {
+	uint8_t mac_src[6];
+	uint8_t run_id[8];
+	uint8_t id_src[17];
+	uint8_t id_rsp[17];
+	uint8_t result;
+} __attribute__((packed));
+
+struct hp_mme_atten_char_rsp {
+	uint8_t app_type;
+	uint8_t sec_type;
+	struct hp_mme_atten_char_rsp_body atten;
+} __attribute__((packed));
+
+struct hp_mme_validate_req {
+	uint8_t signal_type;
+	uint8_t vfield[];
+} __attribute__((packed));
+
+struct hp_mme_validate_cnf {
+	uint8_t signal_type;
+	uint8_t vfield[];
+} __attribute__((packed));
+
+struct hp_mme_slac_match_req {
+	uint8_t app_type;
+	uint8_t sec_type;
+	uint16_t len;
+	uint8_t mfield[];
+} __attribute__((packed));
+
+struct hp_mme_slac_match_cnf {
+	uint8_t app_type;
+	uint8_t sec_type;
+	uint16_t len;
+	uint8_t mfield[];
+} __attribute__((packed));
+
+struct hp_mme_pkcs_cert_req {
+	uint8_t target_mac[6];
+	uint8_t ciphersuite_size;
+	uint8_t ciphersuite[];
+} __attribute__((packed));
+
+struct hp_mme_pkcs_cert_cnf {
+	uint8_t target_mac[6];
+	uint8_t status;
+	uint16_t ciphersuite;
+	uint16_t cert_len;
+	uint8_t cert[];
+} __attribute__((packed));
+
+struct hp_mme_pkcs_cert_ind {
+	uint8_t target_mac[6];
+	uint16_t ciphersuite;
+	uint16_t cert_len;
+	uint8_t cert[];
+} __attribute__((packed));
+
+struct hp_mme_pkcs_cert_rsp {
+	uint8_t target_mac[6];
+	uint8_t status;
+	uint16_t ciphersuite_size;
+	uint8_t ciphersuite[];
+} __attribute__((packed));
+
 struct hp_mme_req {
 	union {
 		struct hp_mme_setkey_req setkey;
