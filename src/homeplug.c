@@ -69,6 +69,12 @@ static size_t pack_slac_parm_cnf(struct hp_mme *mme, const struct hp_mme_cnf *cn
 	return sizeof(cnf->msg.slac_parm);
 }
 
+static size_t pack_slac_match_cnf(struct hp_mme *mme, const struct hp_mme_cnf *cnf)
+{
+	memcpy(mme->body, cnf, sizeof(cnf->msg.slac_match));
+	return sizeof(cnf->msg.slac_match);
+}
+
 static size_t pack_atten_char_ind(struct hp_mme *mme, const struct hp_mme_ind *ind)
 {
 	memcpy(mme->body, ind, sizeof(ind->msg.atten_char));
@@ -109,7 +115,7 @@ static size_t (*pack_cnf[])(struct hp_mme *mme, const struct hp_mme_cnf *cnf) = 
 	pack_nothing_cnf,	/*HP_MMTYPE_PKCS_CERT*/
 	pack_nothing_cnf,	/*HP_MMTYPE_MNBC_SOUND*/
 	pack_nothing_cnf,	/*HP_MMTYPE_VALIDATE*/
-	pack_nothing_cnf,	/*HP_MMTYPE_SLAC_MATCH*/
+	pack_slac_match_cnf,	/*HP_MMTYPE_SLAC_MATCH*/
 	pack_nothing_cnf,	/*HP_MMTYPE_SLAC_USER_DATA*/
 	pack_nothing_cnf,	/*HP_MMTYPE_ATTEN_PROFILE*/
 };

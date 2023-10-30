@@ -181,18 +181,39 @@ struct hp_mme_validate_cnf {
 	uint8_t vfield[];
 } __attribute__((packed));
 
+struct hp_mme_slac_match_req_body {
+	uint8_t id_pev[17];
+	uint8_t mac_pev[6];
+	uint8_t id_evse[17];
+	uint8_t mac_evse[6];
+	uint8_t run_id[8];
+	uint8_t reserved[8];
+} __attribute__((packed));
+
 struct hp_mme_slac_match_req {
 	uint8_t app_type;
 	uint8_t sec_type;
 	uint16_t len;
-	uint8_t mfield[];
+	struct hp_mme_slac_match_req_body mfield;
+} __attribute__((packed));
+
+struct hp_mme_slac_match_cnf_body {
+	uint8_t id_pev[17];
+	uint8_t mac_pev[6];
+	uint8_t id_evse[17];
+	uint8_t mac_evse[6];
+	uint8_t run_id[8];
+	uint8_t reserved[8];
+	uint8_t nid[7];
+	uint8_t reserved2;
+	uint8_t nmk[16];
 } __attribute__((packed));
 
 struct hp_mme_slac_match_cnf {
 	uint8_t app_type;
 	uint8_t sec_type;
 	uint16_t len;
-	uint8_t mfield[];
+	struct hp_mme_slac_match_cnf_body mfield;
 } __attribute__((packed));
 
 struct hp_mme_pkcs_cert_req {
@@ -233,6 +254,7 @@ struct hp_mme_req {
 struct hp_mme_cnf {
 	union {
 		struct hp_mme_slac_parm_cnf slac_parm;
+		struct hp_mme_slac_match_cnf slac_match;
 	} msg;
 };
 
